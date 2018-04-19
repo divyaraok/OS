@@ -28,12 +28,13 @@ sem_t mutex;
 
 struct Queue* waiting_room;
 int customers1 = 0; 
-int n = 10;
+#define n 10
 
 void barber() { 
   if(customers1!=0){
   wait(customers);
   wait(mutex);
+  printf("Customer %d is getting haircut.\n",front(waiting_room));	  
   customers1--;
   dequeue(waiting_room);
   wait(5);
@@ -67,7 +68,7 @@ get_haircut(){
 } 
 
 int main(){
-  pthread_t p1,p2;
+  pthread_t p1[n],p2;
   int op,i;
 
   sem_init(&mutex,0,1);
@@ -76,28 +77,23 @@ int main(){
   sem_init(&cutting,0,0);
 
  do{
-        printf("Who are you ?\n");
-        printf("\n1)Customer \n2)Barber \n3)Processor \n4)Exit");
-        printf("\nEnter Choice: ");
+        printf("Enter number of customers in waiting room : \n");
         scanf("%d",&op);
-        switch (op) {
-            case 1: pthread_create(&p1,NULL,(void *)customer,NULL);
- 		    pthread_join(p1,NULL);
-                    break;
-
-	    case 2: pthread_create(&p2,NULL,(void *)barber,NULL);
+        for(i = 0; i<op; i++) {
+            	    pthread_create(&p1[i],NULL,(void *)customer,NULL);
+ 		    pthread_join(p1[i],NULL);
+	}
+	for(i = 0; i<op; i++) {
+	  if(i<n){  pthread_create(&p2,NULL,(void *)barber,NULL);
  		    pthread_join(p2,NULL);
-		    printf("Customer %d is getting haircut.\n",front(waiting_room));
-		    break;
+		    if(customers1 == 0) printf("Barber is starting to sleep.\n");
+		 }
+	}
  
-            case 3: if(customers1 == 0) printf("Barber is sleeping \n");
-		    else printf("Barber is cutting hair of customer %d\n",front(waiting_room));
-		    printf("No of customers in waiting room : %d\n",customers1);
-		    break;
-
-            default: break;
+            if(customers1 <= 0){
+		    printf("Barber is sleeping.\n");
         }
-    }while (op!=4);
+    }while (op>=0);
 
   return 0;
 }
