@@ -80,8 +80,14 @@ int main(){
         printf("Enter number of customers in waiting room : \n");
         scanf("%d",&op);
         for(i = 0; i<op; i++) {
-            	    pthread_create(&p1[i],NULL,(void *)customer,NULL);
- 		    pthread_join(p1[i],NULL);
+		if(rear(waiting_room)!=n){
+  			pthread_create(&p1[i],NULL,(void *)customer,NULL);
+  			pthread_join(p1[i],NULL);
+ 		}
+ 		else{
+  			printf("Cannot accomodate more than 10 customers\n");
+  			break;
+ 		}
 	}
 	for(i = 0; i<op; i++) {
 	  if(i<n){  pthread_create(&p2,NULL,(void *)barber,NULL);
